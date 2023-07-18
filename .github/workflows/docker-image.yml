@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   workflow_dispatch:  # manual trigger
-  schedule:
+  # schedule:
       # ┌───────────── minute (0 - 59)
       # │ ┌───────────── hour (0 - 23)
       # │ │ ┌───────────── day of the month (1 - 31)
@@ -12,7 +12,7 @@ on:
       # │ │ │ │ │
       # │ │ │ │ │
       # * * * * *
-    - cron: '0 0 * * 1'  # build every Monday
+    # - cron: '0 0 * * 1'  # build every Monday
   push:
     branches: [ master, dev ]
     tags:
@@ -35,25 +35,25 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: mingc/android-build-box
+      IMAGE_NAME: chuiwenchiu/android-build-box
       TAG: $GITHUB_SHA
 
     steps:
     - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
 
-    - name: Docker meta
-      id: meta
-      uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175
-      with:
-        images: mingc/android-build-box
-        labels: |
-          org.opencontainers.image.url=https://hub.docker.com/r/mingc/android-build-box
-          org.opencontainers.image.vendor=Ming Chen
+    # - name: Docker meta
+    #   id: meta
+    #   uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175
+    #   with:
+    #     images: mingc/android-build-box
+    #     labels: |
+    #       org.opencontainers.image.url=https://hub.docker.com/r/mingc/android-build-box
+    #       org.opencontainers.image.vendor=Ming Chen
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
       with:
-        platforms: amd64,arm64
+        platforms: amd64
 
     - name: Available platforms
       run: echo ${{ steps.qemu.outputs.platforms }}
@@ -173,7 +173,7 @@ jobs:
         # platforms: linux/arm64
         # push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
         push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || contains(github.ref, 'refs/tags/')) }}
-        tags: mingc/android-build-box:latest,${{ steps.meta.outputs.tags }}
+        tags: chuiwenchiu/android-build-box:v1,${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
     - name: Modify Readme to list latest software
@@ -189,5 +189,5 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        repository: mingc/android-build-box
+        # repository: mingc/android-build-box
         enable-url-completion: true
