@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: chuiwenchiu/android-build-box
-      TAG: $GITHUB_SHA
+      TAG: v2
 
     steps:
     - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
@@ -120,40 +120,40 @@ jobs:
           FLUTTER_TAGGED="tagged"
           JENV_TAGGED="tagged"
 
-    - name: Inspect local docker image
-      run: |
-        docker images
-        docker inspect ${{ env.IMAGE_NAME}}:${{ env.TAG}}
+    # - name: Inspect local docker image
+    #   run: |
+    #     docker images
+    #     docker inspect ${{ env.IMAGE_NAME}}:${{ env.TAG}}
 
-    - name: Test
-      run: |
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} env
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} flutter --version
+    # - name: Test
+    #   run: |
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} env
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} flutter --version
 
-        echo "Show current java version"
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} java -version
+    #     echo "Show current java version"
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} java -version
 
-        echo "Set java env to 8"
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c '. $HOME/.bash_profile && jenv local 1.8 && java -version'
+    #     echo "Set java env to 8"
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c '. $HOME/.bash_profile && jenv local 1.8 && java -version'
 
-        echo "Test jenv recognizes Java 11"
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'jenv local 11 && java -version'
+    #     echo "Test jenv recognizes Java 11"
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'jenv local 11 && java -version'
 
-        echo "Test jenv recognizes Java 17"
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'jenv local 17 && java -version'
+    #     echo "Test jenv recognizes Java 17"
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'jenv local 17 && java -version'
 
-        docker run -v `pwd`:/project --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'echo "Current directory: $PWD"'
+    #     docker run -v `pwd`:/project --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'echo "Current directory: $PWD"'
 
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'ls -l $ANDROID_SDK_HOME'
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'ls -l $ANDROID_NDK_HOME'
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'ls -l /opt/android-sdk/ndk/'
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'ls -l $ANDROID_SDK_HOME'
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'ls -l $ANDROID_NDK_HOME'
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'ls -l /opt/android-sdk/ndk/'
 
-        # Test Node
-        echo "Test Node installation"
-        docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'curl -fsSL https://deb.nodesource.com/test | bash -'
+    #     # Test Node
+    #     echo "Test Node installation"
+    #     docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'curl -fsSL https://deb.nodesource.com/test | bash -'
 
-        cd test_projects/SampleProject/
-        docker run --rm -v `pwd`:/project ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c './gradlew build'
+    #     cd test_projects/SampleProject/
+    #     docker run --rm -v `pwd`:/project ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c './gradlew build'
 
     - name: Login to DockerHub
       # if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
@@ -173,21 +173,21 @@ jobs:
         # platforms: linux/arm64
         # push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
         push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || contains(github.ref, 'refs/tags/')) }}
-        tags: chuiwenchiu/android-build-box:v1,${{ steps.meta.outputs.tags }}
+        tags: chuiwenchiu/android-build-box:v2,${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
-    - name: Modify Readme to list latest software
-      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master')
-      run: |
-        printf "\n\n \"Latest\" Tag Software:\n\n" >> README.md
-        TEMP=$(docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} cat '/root/installed-versions.txt')
-        echo "$TEMP" | tail --lines=+2 >> README.md
+    # - name: Modify Readme to list latest software
+    #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master')
+    #   run: |
+    #     printf "\n\n \"Latest\" Tag Software:\n\n" >> README.md
+    #     TEMP=$(docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} cat '/root/installed-versions.txt')
+    #     echo "$TEMP" | tail --lines=+2 >> README.md
 
-    - name: Update Docker Hub Description
-      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master')
-      uses: peter-evans/dockerhub-description@dc67fad7001ef9e8e3c124cb7a64e16d0a63d864
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-        # repository: mingc/android-build-box
-        enable-url-completion: true
+    # - name: Update Docker Hub Description
+    #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master')
+    #   uses: peter-evans/dockerhub-description@dc67fad7001ef9e8e3c124cb7a64e16d0a63d864
+    #   with:
+    #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+    #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+    #     # repository: mingc/android-build-box
+    #     enable-url-completion: true

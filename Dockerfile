@@ -21,7 +21,7 @@ ARG NODE_VERSION="16.x"
 ARG BUNDLETOOL_TAGGED="latest"
 ARG BUNDLETOOL_VERSION="1.14.0"
 
-ARG FLUTTER_TAGGED="latest"
+ARG FLUTTER_TAGGED="tagged"
 ARG FLUTTER_VERSION="3.7.7"
 
 ARG JENV_TAGGED="latest"
@@ -343,13 +343,14 @@ RUN echo "NDK finished"
 # Flutter
 FROM --platform=linux/amd64 base as flutter-base
 WORKDIR ${DIRWORK}
+
 FROM flutter-base as flutter-tagged
 RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME} && \
     echo "FLUTTER_VERSION=${FLUTTER_VERSION}" >> ${INSTALLED_TEMP}
 
-FROM flutter-base as flutter-latest
-RUN git clone --depth 5 -b stable https://github.com/flutter/flutter.git ${FLUTTER_HOME} && \
-    cd ${FLUTTER_HOME} && echo "FLUTTER_VERSION="$(git describe --tags HEAD) >> ${INSTALLED_TEMP}
+#FROM flutter-base as flutter-latest
+#RUN git clone --depth 5 -b stable https://github.com/flutter/flutter.git ${FLUTTER_HOME} && \
+#    cd ${FLUTTER_HOME} && echo "FLUTTER_VERSION="$(git describe --tags HEAD) >> ${INSTALLED_TEMP}
 
 FROM flutter-${FLUTTER_TAGGED} as flutter-final
 RUN flutter config --no-analytics
@@ -496,11 +497,11 @@ RUN git config --global --add safe.directory ${FLUTTER_HOME} && \
     rm -rf ${DIRWORK}/*
 
 # labels, see http://label-schema.org/
-LABEL maintainer="Ming Chen"
-LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="mingc/android-build-box"
-LABEL org.label-schema.version="${DOCKER_TAG}"
-LABEL org.label-schema.usage="/README.md"
-LABEL org.label-schema.docker.cmd="docker run --rm -v `pwd`:${FINAL_DIRWORK} mingc/android-build-box bash -c './gradlew build'"
-LABEL org.label-schema.build-date="${BUILD_DATE}"
-LABEL org.label-schema.vcs-ref="${SOURCE_COMMIT}@${SOURCE_BRANCH}"
+# LABEL maintainer="Ming Chen"
+#LABEL org.label-schema.schema-version="1.0"
+# LABEL org.label-schema.name="mingc/android-build-box"
+#LABEL org.label-schema.version="${DOCKER_TAG}"
+#LABEL org.label-schema.usage="/README.md"
+#LABEL org.label-schema.docker.cmd="docker run --rm -v `pwd`:${FINAL_DIRWORK} mingc/android-build-box bash -c './gradlew build'"
+#LABEL org.label-schema.build-date="${BUILD_DATE}"
+#LABEL org.label-schema.vcs-ref="${SOURCE_COMMIT}@${SOURCE_BRANCH}"
